@@ -27,16 +27,33 @@ mainScene.preload = function() {
 
 mainScene.create = function() {
     // 左側のパーティクル作成
-    
+    this.createParticle1();
     // 右側のパーティクル作成
-    
+    this.createParticle2();
 };
 
 mainScene.createParticle1 = function() {
     // 左側のパーティクル作成
+    var x = this.game.config.width / 3;
+    // Y座標は画面下部
+    var y = this.game.config.height;
     
-    
-    
+    // パーティクル作成
+    var particles = this.add.particles('heart');
+    // エミッター起動
+    var emitter = particles.createEmitter({
+        x: x,
+        y: y,
+        frame : [0, 1, 2, 3],
+        speed: { min: 1, max: 100 },
+        scale: { min: 0.1, max: 0.1 },
+        angle: { min: -60, max: -120 },
+        rotate: { min: 0, max: 360 },
+        gravityY : 0,
+        frequency : 0.00000000000000000000000000000000000000000001,
+        lifespan: 36000,
+        blendMode: 'COLOR',
+    });
 };
 
 mainScene.createParticle2 = function() {

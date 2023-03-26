@@ -231,7 +231,7 @@ mainScene.shoot = function() {
     // 実際のファイヤー作成
     var fire = this.fireGroup.create(x, y, 'fire');
     fire.body.setSize(20,20);
-    fire.setDisplaySize(100,70);
+    fire.setDisplaySize(70,70);
     fire.body.setAllowGravity(false);
     // ファイヤーの速度
     var speed = 600;

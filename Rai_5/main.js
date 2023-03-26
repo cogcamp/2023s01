@@ -3,19 +3,19 @@ var mainScene = new Phaser.Scene("mainScene");
 // 初期設定
 mainScene.config = function() {
     // プレイヤーの動く速度
-    this.runSpeed = 300;
+    this.runSpeed =500;
     // プレイヤーのジャンプパワー
-    this.jumpPower = 500;
+    this.jumpPower = 700;
     // プレイヤーの画像
-    this.playerImage = "player1";
+    this.playerImage = "player5";
     // ゲームオーバーフラグ
     this.isGameOver = false;
     // スコアの初期値
     this.score = 0;
     // 敵の配列
-    this.enemyData = ['enemy01','enemy02','enemy05','enemy07','enemy08'];
+    this.enemyData = ['enemy01','enemy02','enemy05','enemy07','enemy08','enemy03','enemy04','enemy06','enemy06','enemy08','enemy09','enemy10','enemy11','enemy12'];
     // 敵のスピードを設定する配列
-    this.enemySpeed = [-100,-50,50,100];
+    this.enemySpeed = [-200,400,500,600,500];
     // カーソルを取得する
     this.cursors = this.input.keyboard.createCursorKeys();
 };
@@ -43,12 +43,16 @@ mainScene.create = function () {
     this.createEnemyGroup();
     
     // ファイヤーグループ作成
-    
+    this.createFireGroup();
     
     // スペースキーでファイヤ発射
-    this.input.keyboard.on('keydown-SPACE', function() {
+    this.input.keyboard.on('keydown-SPACE', function(){
         // ファイヤー発射
         this.shoot();
+    }, this);
+    this.input.keyboard.on('keydown-N',  function(){
+        // ファイヤー発射
+        this.shoot2();
     }, this);
 };
 
@@ -67,7 +71,7 @@ this.player.direction='left'
 this.player.body.setVelocityX(this.runSpeed)
     this.player.anims.play('walk',true)
     this.player.flipX=false
-    this.player.diretion='right';
+    this.player.direction='right';
     }else{
 //カーソルを離すと停止する
 this.player.body.setVelocityX(0)
@@ -188,25 +192,37 @@ mainScene.createEnemyGroup = function() {
 mainScene.createEnemy = function() {
     // 敵を作成
     //敵をランダムにする
-    verenemyType = phaser.Math.RND.pick(this.enemyData);
+    var enemyType = Phaser.Math.RND.pick(this.enemyData);
     //敵の座標をランダムにする
-    ver enemyPositionX = phasr.Math.RND.between(500,2000);
+    var enemyPositionX = Phaser.Math.RND.between(500,2000);
     //敵の作成
-    ver enemy = this.enemies.create(enemyPositionX, 100,enemyType);
-    enemy.body.setDize(350,350);
+    var enemy = this.enemies.create(enemyPositionX, 100,enemyType);
+    enemy.setCollideWorldBounds(true);
+    enemy.setBounce(1);
+    enemy.body.setSize(350,350);
     enemy.setDisplaySize(70, 70);
-    ver speed = phaser,Math.RND.pink(this.enemySpeed);
+    var speed = Phaser.Math.RND.pick(this.enemySpeed);
     
     enemy.setVelocityX(speed);
 };
 
 mainScene.hitEnemy = function(player, enemy) {
     // プレイヤーが敵に衝突
-    
-    
+  this.physics.pause();
+  this.player.setTint(0xff0000)
+  this.player.anims.stop();
+  this.isGameOver = true;
+  this.enemyTimer.remove();
+
+//ゲームオーバー画面を表示
+this.gameOverTimer = this.time.addEvent({
+    delay: 1000,
+    callback: this.gameOver,
+    loop: false,
+    callbackScope: this,
+    });
     
 };
-
 mainScene.createFireGroup = function() {
     // プレイヤーの攻撃用ファイヤーグループ作成
     this.fireGroup = this.physics.add.group();
@@ -216,16 +232,53 @@ mainScene.createFireGroup = function() {
 
 mainScene.shoot = function() {
     // ファイヤーの作成
-    
-    
-    
+    var x = this.player.body.center.x;
+    var y = this.player.body.center.y;
+    //実際のファイヤー作成
+    var fire = this.fireGroup.create(x,y,'fire');
+    fire.body.setSize(20,20)
+    fire.setDisplaySize(90,70)
+    fire.body.setAllowGravity(false)
+    //プレーヤー速度
+    var speed = 750;
+    //プレイヤーの進行方針に発射
+    if( this.player.direction == 'left' ){
+    fire.setAngle(90);
+    fire.setVelocityX(-speed);
+    } else{
+    fire.setAngle(-90)
+    fire.setVelocityX(speed)
+    }
+};
+mainScene.shoot2 = function() {
+    // ファイヤーの作成
+    var x = this.player.body.center.x;
+    var y = this.player.body.center.y;
+    //実際のファイヤー作成
+    var fire = this.fireGroup.create(x,y,'fire');
+    fire.body.setSize(20,20)
+    fire.setDisplaySize(80,80)
+    fire.body.setAllowGravity(false)
+    //プレーヤー速度
+    var speed = 600;
+    //プレイヤーの進行方針に発射
+    if( this.player.direction == 'left' ){
+    fire.setAngle(90);
+    fire.setVelocityX(+speed);
+    fire.setVelocityY(-speed);
+    } else{
+    fire.setAngle(-90)
+    fire.setVelocityX(speed)
+    fire.setVelocityY(-speed);
+    }
 };
 
 mainScene.hitFire = function(enemy, fire) {
     // ファイヤーと敵が衝突
-    
-    
-    
+    //敵の削除
+    enemy.destroy();
+    //ファイヤーの削除
+    fire.destroy();
 };
 
 mainScene.hitFireGround = function(fire, ground) {

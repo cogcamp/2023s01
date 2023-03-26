@@ -21,9 +21,16 @@ loadScene.preload = function() {
     // 敵画像
     this.load.image('enemy01', 'assets/images/enemy01.png');
     this.load.image('enemy02', 'assets/images/enemy02.png');
+    this.load.image('enemy03', 'assets/images/enemy03.png');
+    this.load.image('enemy04', 'assets/images/enemy04.png');
     this.load.image('enemy05', 'assets/images/enemy05.png');
+    this.load.image('enemy06', 'assets/images/enemy06.png');
     this.load.image('enemy07', 'assets/images/enemy07.png');
     this.load.image('enemy08', 'assets/images/enemy08.png');
+    this.load.image('enemy09', 'assets/images/enemy09.png');
+    this.load.image('enemy10', 'assets/images/enemy10.png');
+    this.load.image('enemy11', 'assets/images/enemy11.png');
+    this.load.image('enemy12', 'assets/images/enemy12.png');
     // ファイヤ画像
     this.load.image('fire', 'assets/images/fire.png');
 };

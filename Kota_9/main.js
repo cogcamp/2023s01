@@ -11,23 +11,48 @@ mainScene.create = function() {
     this.createPaddle();
     
     // スペースキーのクリックでボール発射
-    
+    this.input.keyboard.on("keydown-SPACE",function(event){
+        //ゲーム開始状態であれば
+        if(this.paddle.isStart){
+            //ボール発射
+            this.ball.setVelocity(this.ballSpeedX,this.ballSpeedY);
+            this.paddle.isStart=false;
+        }
+    },this);
     
     // ブロック作成
-    
+    this.createBlocks();
     
     // ライフのテキスト表示
-    
+    this.lifeText=this.add.text(30,20,"ライフ:"+this.life,{
+        font:"20px open Sans",
+        fill:"#ff0000"
+    });
 };
 
 mainScene.update = function() {
     // ボールがシーンの最下部に到達した
-    
+    if(this.ball.y>=this.game.config.height-this.ball.width/2){
+        this.failToHit();
+    }
     
     // キーボードのカーソルオブジェクトを取得
     var cursors = this.input.keyboard.createCursorKeys();
     var x = 0;
-    
+    //右のカーソルをクリックすると
+    if(cursors.right.isDown){
+        x=this.paddle.x+this.paddleSpeed;
+        this.paddle.x=Phaser.Math.Clamp(x,52,748);
+    }
+    //左のカーソルをクリックすると
+    if(cursors.left.isDown){
+        x=this.paddle.x-this.paddleSpeed;
+        this.paddle.x=Phaser.Math.Clamp(x,52,748);
+    }
+    //パドルが上に乗っているなら
+    if(this.paddle.isStart){
+        this.ball.setPosition(this.paddle.x,500)
+    }
 };
 
 mainScene.config = function() {
@@ -35,7 +60,7 @@ mainScene.config = function() {
     this.cameras.main.setBackgroundColor('#cccccc');
     
     // パドルの移動速度
-    this.paddleSpeed = 10;
+    this.paddleSpeed = 12;
     
     // ボール発射の加速度
     this.ballSpeedX = 0;
@@ -55,7 +80,7 @@ mainScene.createBall = function() {
 
 mainScene.createPaddle = function() {
      // パドル作成
-    this.paddle=this.physics.add.image(400,550,"paddle");
+    this.paddle=this.physics.add.image(400,550,"paddle1");
     this.paddle.setDisplaySize(104,24);
     this.paddle.setImmovable();
     this.paddle.isStart=true;
@@ -64,13 +89,49 @@ mainScene.createPaddle = function() {
 
 mainScene.hitPaddle = function (paddle, ball) {
     // ボールにX方向の角度を設定
+    var diff=0;
+    if(ball.x<paddle.x){
+        //ボールがパドルの左側に衝突
+        diff=paddle.x-ball.x;
+        ball.setVelocityX(-3*diff);
+    }else if(ball.x>paddle.x){
+        //ボールがパドルの右側に衝突
+        diff=ball.x-paddle.x;
+        ball.setVelocityX(15*diff);
+    }else{
+        //X方向の加速度はなし
+        ball.setVelocityX(0);
+    }
     
 };
 
 mainScene.createBlocks = function() {
     // 横10列、縦6行並べる
+    //ブロックの色の配列
+    var blockColors=["red1","green1","yellow1","silver1","blue1","purple1","yellow1","green1","silver1","blue1","red1","purple1","white1"];
     
+    //物理エンジン対象固定オブジェクトグループ作成
+    this.blocks=this.physics.add.staticGroup();
     
+    //縦に6行
+    for(var i=0; i<8; i++){
+        //横に10列
+        for(var j=0; j<10; j++){
+            if (i==1 || i==3||i==6||i==8) {
+                if (j == 1|| j==3||j==6||j==8) {
+                continue;
+                }
+            }
+            
+            var color=blockColors[i];
+
+            var block =this.blocks.create(80+j*64,80+i*32,color);
+            block.setOrigin(0,0);
+            block.setDisplaySize(64,32);
+            block.refreshBody();
+        }
+    }
+    this.physics.add.collider(this.ball,this.blocks,this.hitBlock,null,this);
 };
 
 mainScene.hitBlock = function (ball, block) {
